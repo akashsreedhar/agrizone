@@ -1,0 +1,28 @@
+{
+  "name": "lets-do-it",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "nodemon ./bin/www"
+  },
+  "dependencies": {
+    "@handlebars/allow-prototype-access": "^1.0.5",
+    "bcrypt": "^5.1.0",
+    "bootstrap": "^5.2.3",
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "express": "^4.18.2",
+    "express-fileupload": "^1.4.0",
+    "express-handlebars": "^7.0.2",
+    "express-session": "^1.17.3",
+    "hbs": "^4.2.0",
+    "http-errors": "~1.6.3",
+    "mongodb": "^3.7.3",
+    "morgan": "~1.9.1",
+    "node": "^19.8.1",
+    "nodemon": "^2.0.21"
+  },
+  "devDependencies": {
+    "handlebars": "^4.5.0"
+  }
+}
