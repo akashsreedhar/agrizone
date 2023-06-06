@@ -35,14 +35,59 @@ req.session.loginErr=false
 }
 })
 router.get('/signup',(req,res)=>{
-  res.render('user/signup')
+  if(req.session.loggedIn)
+  {
+    res.redirect("/")
+  }else{
+    res.render("user/signup",{"signErr":req.session.usersigninErr})
+    req.session.usersigninErr=null;
+
+  
+  }
 })
-router.post('/signup',(req,res)=>{
+router.post('/signup',async(req,res)=>{
+  let useremailverify
+   if(req.body.Email && req.body.Password && req.body.Name){
+
+     useremailverify=await userHelpers.verifyUserEmail(req.body.Email)
+     if(useremailverify){
+      req.session.usersigninErr="User with this email already exist"
+      res.redirect('/signup')
+     }
+     else{
     userHelpers.doSignup(req.body).then((response)=>{
-    console.log(response);
-    req.session.loggedIn=true
-    req.session.user=response
-    res.redirect('/')
+      let n=response.user.Name.split(' ');
+      let fname=n[0]
+      req.session.user=response.user
+      req.session.user.fname=fname;
+      req.session.userloggedIn=true
+         let user=req.session.user
+        let username=response.user.Name
+        let useremail=response.user.Email
+      res.render('user/profile-form',{username,user,useremail})
+  
+  })
+}   
+}
+else{
+  req.session.usersigninErr="Enter All Credentials(Name,Email,Password)"
+   res.redirect('/signup')
+}
+})
+router.post('/updateProfile',(req,res)=>{
+ 
+  console.log(req.body)
+  console.log(req.query.id)
+  userHelpers.profileUpdate(req.body,req.query.id).then(()=>{
+    let image=req.files.Image
+  image.mv('./public/user-image/'+req.query.id+'.jpg',(err,done)=>{
+    if(!err){
+     
+     res.redirect('/')
+    }else{
+      console.log(err)
+    }
+  })
   })
 })
 router.post('/login',(req,res)=>{
@@ -65,11 +110,16 @@ router.get('/logout',(req,res)=>{
 router.get('/cart',verifyLogin,async(req,res)=>{
 let products=await userHelpers.getCartProducts(req.session.user._id)
 let totalValue=0
+if(req.session.user)
+  {
+  cartCount=await userHelpers.getCartCount(req.session.user._id)
+}
 if(products.length>0){
   let totalValue=await userHelpers.getTotalAmount(req.session.user._id)}
   console.log(products);
+
   
-  res.render('user/cart',{products,user:req.session.user._id,totalValue})
+  res.render('user/cart',{products,users:req.session.user._id,totalValue,cartCount,user:req.session.user})
 })
 router.get('/add-to-cart/:id',(req,res)=>{
   console.log("api call");
@@ -136,4 +186,47 @@ router.get('/contact',(req,res)=>{
   res.render('user/contact',{user:req.session.user})
 })
 
+
+
+router.get('/user-profile',verifyLogin,async (req,res)=>{
+ 
+  let user=req.session.user
+  let cartCount=null;
+  if(user){
+    cartCount=await userHelpers.getCartCount(req.session.user._id)
+    console.log(cartCount)
+  }
+ let userDetails=await userHelpers.getUserDetails(req.session.user._id)
+
+
+  res.render('user/profile',{userDetails,cartCount,user})
+})
+router.get('/edit-profile',async (req,res)=>{
+  let user=req.session.user
+  let userDetails=await userHelpers.getUserDetails(req.session.user._id)
+  let cartCount=null;
+  if(user){
+    cartCount=await userHelpers.getCartCount(req.session.user._id)
+  }
+ 
+  res.render('user/edit-profile',{user,userDetails,cartCount})
+})
+router.post('/edit-profile',(req,res)=>{
+  let user=req.session.user
+  userHelpers.editUser(user._id,req.body).then(()=>{
+    let n=req.body.Name.split(' ');
+    let fname=n[0]
+      console.log(fname)
+      req.session.user.fname=fname;
+  
+  console.log(req.body)
+  res.redirect('/')
+  if(req.files.Image){
+    let image=req.files.Image
+    image.mv('./public/user-image/'+user._id+'.jpg')
+
+  }
+  
+})
+})
 module.exports = router;
