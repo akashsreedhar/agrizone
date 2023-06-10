@@ -58,13 +58,7 @@
 	</style>
 </head>
 <body>
-	{{#if signErr}}
-<p class="text-danger text-center" > {{signErr}}</p>
-{{else}}
-<p class="text-success text-center">We'll never share your credentials with anyone else.</p>
-
-
-{{/if}}
+	
 
 	<form action="/signup" method="post">
 			<h2>Create New Account</h2>
@@ -76,8 +70,8 @@
 
 			<label for="password">Password:</label>
 			<input type="password" id="password" name="Password" required>
-
-			<a href="/login">Already have Account...?</a>
+<p class="text-success text-center">
+			<a href="/login" class="text-success text-center">Already have Account...?</a></p>
 			<input type="submit" value="Submit">
 
 			

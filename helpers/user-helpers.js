@@ -39,32 +39,35 @@ module.exports = {
                     })
           })
      },
-     doLogin: (userData) => {
-          return new Promise(async (resolove, reject) => {
-               let loginStatus = false
-               let response = {}
-               let user = await db.get().collection(collection.USER_COLLECTION).findOne({ Email: userData.Email })
-               if (user) {
-                    bcrypt.compare(userData.Password, user.Password).then((status) => {
-                         if (status) {
-                              console.log("login success");
-                              response.user = user
-                              response.status = true
-                              resolove(response)
-                         } else {
-                              console.log('login failed');
-                              resolove({ status: false })
-                         }
-                    })
-               } else {
-                    console.log('login failed');
-                    resolove({ status: false })
-               }
-
-
+     doLogin:(userData)=>{
+          return new Promise(async(resolve,reject)=>{
+              let loginStatus=false
+              let response={}
+              let user=await db.get().collection(collection.USER_COLLECTION).findOne({Email:userData.Email})
+              if(user){
+                  bcrypt.compare(userData.Password,user.Password).then((status)=>{
+                      if(status){
+                          if(user.Status==='blocked'){
+                              console.log('login failed user blocked')
+                              resolve({status:false,error:'User Blocked By Admin'})
+                          }else{
+                          console.log("login success")
+                          response.user=user
+                          response.status=true
+                          resolve(response)
+                      }
+                      }
+                      else{
+                          console.log("login failed");
+                          resolve({status:false,error:'Password does not match'})
+                      }
+                  })
+              }else{
+                  console.log("login failed")
+                  resolve({status:false,error:'User Not Found'})
+              }
           })
-
-     },
+      },
      addToCart: (proId, userId) => {
           let proObj = {
                item: objectId(proId),
@@ -378,7 +381,19 @@ module.exports = {
                    resolve(response)
                })
                })
+           }, 
+           blockUser:(userId)=>{
+               return new Promise((resolve,reject)=>{
+                db.get().collection(collection.USER_COLLECTION).updateOne({_id:objectId(userId)},{ $set: { "Status" : 'blocked', "mode":false } })
+                resolve()
+               })
            },
+           unblockUser:(userId)=>{
+              return new Promise((resolve,reject)=>{
+                  db.get().collection(collection.USER_COLLECTION).updateOne({_id:objectId(userId)},{ $set: { "Status" : 'active',"mode":true } })
+                  resolve()
+                 })
+           }
 
 
 
