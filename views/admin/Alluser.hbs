@@ -1,34 +1,52 @@
-<section>
-    <div class="container">
-        <div class="row mt-4">
- 
+<!-- Example DataTables Card-->
+      <div class="card mb-3">
+        <div class="card-header">
+          <i class="fa fa-table"></i> User Accounts Management</div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Mobile</th>
+                  <th>Pincode</th>
+                  <th>State</th>
+                  <th>status</th>
+                </tr>
+              </thead>
+              <tfoot>
+                <tr>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                </tr>
+              </tfoot>
+              <tbody>
+                  {{#each users}}
+                <tr>
+                  <td>{{this.Name}}</td>
+                  <td>{{this.Email}}</td>
+                  <td>{{this.Mobile}}</td>
+                  <td>{{this.Pincode}}</td>
+                  <td>{{this.State}}</td>
+                  {{#if this.mode}}
+                  <td><a href="/admin/change-user-status?id={{this._id}}&status={{this.Status}}" onclick="return confirm('Are you sure want to Block/Unblock {{this.Name}}')" class="btn btn-success">{{this.Status}}</a></td>
+                 {{else}}
+                 <td><a href="/admin/change-user-status?id={{this._id}}&status={{this.Status}}" onclick="return confirm('Are you sure want to Block/Unblock {{this.Name}}')" class="btn btn-danger">{{this.Status}}</a></td>
+               {{/if}}
+                      {{/each}}
+                </tr>
+        
+             
+          
+              </tbody>
+            </table>
+          </div>
         </div>
-        <table class="table mt-5" id="productsTable">
-            <thead>
-                <tr>
-                    <th scope="col">Id</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Email</th>
-                    
-                </tr>
-            </thead>
-            <tbody>
-                
-                {{#each users}}
-                <tr>
-                    <td>{{this._id}}</td>
-                    <td>{{this.Name}}</td>
-                    <td>{{this.Email}}</td>
-                    
-                </tr>
-                {{/each}}
-            </tbody>
-        </table>
-
-
-
-
-
+        <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
+      </div>
     </div>
-
-</section>

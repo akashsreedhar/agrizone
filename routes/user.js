@@ -26,13 +26,15 @@ router.get('/',async function(req, res, next) {
 }) 
 });
 router.get('/login',(req,res)=>{
-  if(req.session.loggedIn){
-    res.redirect('/')
+  
+  if(req.session.userloggedIn){
+   
+    res.redirect("/")
   }else{
-
-res.render('user/login',{"loginErr":req.session.loginErr})
-req.session.loginErr=false
-}
+    
+  res.render("user/login",{"loginErr":req.session.userloginErr})
+  req.session.userloginErr=false
+  }
 })
 router.get('/signup',(req,res)=>{
   if(req.session.loggedIn)
@@ -92,22 +94,29 @@ router.post('/updateProfile',(req,res)=>{
 })
 router.post('/login',(req,res)=>{
   userHelpers.doLogin(req.body).then((response)=>{
-  if(response.status){
-    req.session.loggedIn=true
-    req.session.user=response.user
-    res.redirect('/')
-  }else{
-    req.session.loginErr=true
-    res.redirect('/login')
-  }
-
+    if(response.status){
+      let n=response.user.Name.split(' ');
+    let fname=n[0]
+      console.log(fname)
+      req.session.user=response.user
+      req.session.user.fname=fname;
+      console.log(req.session.user)
+      req.session.userloggedIn=true
+      res.redirect('/')
+    }
+    else{
+      console.log(response.error)
+      req.session.userloginErr=response.error
+      res.redirect('/login')
+    }
   })
 })
 router.get('/logout',(req,res)=>{
   req.session.destroy()
   res.redirect('/login')
 })
-router.get('/cart',verifyLogin,async(req,res)=>{
+router.get('/cart',async(req,res)=>{
+  if(req.session.user){
 let products=await userHelpers.getCartProducts(req.session.user._id)
 let totalValue=0
 if(req.session.user)
@@ -120,6 +129,10 @@ if(products.length>0){
 
   
   res.render('user/cart',{products,users:req.session.user._id,totalValue,cartCount,user:req.session.user})
+}
+else{
+  res.redirect('/login')
+}
 })
 router.get('/add-to-cart/:id',(req,res)=>{
   console.log("api call");
@@ -151,8 +164,13 @@ router.get('/order-success',(req,res)=>{
   res.render('user/order-success',{user:req.session.user})
 })
 router.get('/orders',async(req,res)=>{
+  cartCount=await userHelpers.getCartCount(req.session.user._id)
+
   let orders=await userHelpers.getUserOrders(req.session.user._id)
-  res.render('user/orders',{user:req.session.user,orders})
+  
+    
+
+  res.render('user/orders',{orders,cartCount,user:req.session.user})
 })
 router.get('/view-order-products/:id',async(req,res)=>{
   let products=await userHelpers.getOrderProducts(req.params.id)
@@ -188,7 +206,7 @@ router.get('/contact',(req,res)=>{
 
 
 
-router.get('/user-profile',verifyLogin,async (req,res)=>{
+router.get('/user-profile',async (req,res)=>{
  
   let user=req.session.user
   let cartCount=null;

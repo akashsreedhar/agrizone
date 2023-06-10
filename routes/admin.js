@@ -84,4 +84,20 @@ router.get('/Alluser',(req,res)=>{
 
   })
 })
+router.get('/change-user-status',(req,res)=>{
+  console.log(req.query.id)
+  console.log(req.query.status);
+  if(req.query.status==='active'){
+    userHelpers.blockUser(req.query.id).then(()=>{
+      console.log('Blocked')
+      res.redirect('/admin/Alluser')
+    })
+  }
+  else{
+    userHelpers.unblockUser(req.query.id).then(()=>{
+      console.log('unBlocked')
+      res.redirect('/admin/Alluser')
+    })
+  }
+})
 module.exports = router;
