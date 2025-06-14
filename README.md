@@ -7,4 +7,4 @@ a website that will help farmers to sell their products
 directly to customers without the help of
 intermediaries or agents
 
-Author - Akash sreedhar
+
